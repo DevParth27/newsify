@@ -21,6 +21,7 @@ class AppTheme {
         backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: colorScheme.onSurface,
+        centerTitle: true,
         titleTextStyle: const TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.w600,

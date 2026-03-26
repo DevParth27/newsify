@@ -60,6 +60,7 @@ class _NewsFeedTabContent extends ConsumerStatefulWidget {
 
 class _NewsFeedTabContentState extends ConsumerState<_NewsFeedTabContent> {
   late final ScrollController _scrollController;
+  bool _releasedFromBottom = true;
 
   @override
   void initState() {
@@ -68,10 +69,16 @@ class _NewsFeedTabContentState extends ConsumerState<_NewsFeedTabContent> {
   }
 
   void _onScroll() {
+    if (!_scrollController.hasClients) return;
     final pos = _scrollController.position;
-    if (pos.pixels >= pos.maxScrollExtent - 200) {
-      ref.read(newsFeedProvider(widget.category).notifier).loadMore();
+    final nearBottom = pos.pixels >= pos.maxScrollExtent - 200;
+    if (!nearBottom) {
+      _releasedFromBottom = true;
+      return;
     }
+    if (!_releasedFromBottom) return;
+    _releasedFromBottom = false;
+    ref.read(newsFeedProvider(widget.category).notifier).loadMore();
   }
 
   @override

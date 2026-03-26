@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.newsify.app" "\0"
-            VALUE "FileDescription", "newsify" "\0"
+            VALUE "FileDescription", "Newsify" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "newsify" "\0"
+            VALUE "InternalName", "Newsify" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2026 com.newsify.app. All rights reserved." "\0"
             VALUE "OriginalFilename", "newsify.exe" "\0"
-            VALUE "ProductName", "newsify" "\0"
+            VALUE "ProductName", "Newsify" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END
