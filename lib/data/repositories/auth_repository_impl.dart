@@ -45,4 +45,10 @@ class AuthRepositoryImpl implements AuthRepository {
   bool isLoggedIn() {
     return _local.isLoggedIn();
   }
+
+  @override
+  User? getCurrentUser() {
+    if (!isLoggedIn()) return null;
+    return _local.getUser();
+  }
 }

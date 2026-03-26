@@ -9,4 +9,6 @@ abstract class AuthRepository {
   Future<Either<Failure, Unit>> logout();
 
   bool isLoggedIn();
+
+  User? getCurrentUser();
 }

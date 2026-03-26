@@ -13,7 +13,9 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
 class AuthNotifier extends AsyncNotifier<User?> {
   @override
   Future<User?> build() async {
-    return null;
+    final repo = ref.read(authRepositoryProvider);
+    if (!repo.isLoggedIn()) return null;
+    return repo.getCurrentUser();
   }
 
   Future<void> login(String email, String password) async {
