@@ -2,12 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-final authProvider = StateProvider<bool>((ref) => false);
+import '../../domain/entities/article.dart';
+import '../../presentation/providers/auth_provider.dart';
+import '../../presentation/screens/article_detail/article_detail_screen.dart';
+import '../../presentation/screens/auth/login_screen.dart';
+import '../../presentation/screens/favorites/favorites_screen.dart';
+import '../../presentation/screens/news_feed/news_feed_screen.dart';
+import '../../presentation/screens/search/search_screen.dart';
+
+final rootNavigatorKey = GlobalKey<NavigatorState>();
 
 final goRouterProvider = Provider<GoRouter>((ref) {
-  final isAuthenticated = ref.watch(authProvider);
+  final authAsync = ref.watch(authProvider);
+  final isAuthenticated = authAsync.maybeWhen(
+    data: (user) => user != null,
+    orElse: () => false,
+  );
 
   return GoRouter(
+    navigatorKey: rootNavigatorKey,
     initialLocation: '/feed',
     debugLogDiagnostics: false,
     redirect: (context, state) {
@@ -22,7 +35,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/login',
         name: 'login',
-        builder: (context, state) => const LoginPage(),
+        builder: (context, state) => const LoginScreen(),
       ),
       ShellRoute(
         builder: (context, state, child) {
@@ -35,24 +48,33 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/feed',
             name: 'feed',
-            builder: (context, state) => const FeedPage(),
+            builder: (context, state) => const NewsFeedScreen(),
           ),
           GoRoute(
             path: '/search',
             name: 'search',
-            builder: (context, state) => const SearchPage(),
+            builder: (context, state) => const SearchScreen(),
           ),
           GoRoute(
             path: '/favorites',
             name: 'favorites',
-            builder: (context, state) => const FavoritesPage(),
-          ),
-          GoRoute(
-            path: '/article',
-            name: 'article',
-            builder: (context, state) => const ArticlePage(),
+            builder: (context, state) => const FavoritesScreen(),
           ),
         ],
+      ),
+      GoRoute(
+        path: '/article',
+        name: 'article',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) {
+          final extra = state.extra;
+          if (extra is! Article) {
+            return const Scaffold(
+              body: Center(child: Text('Missing article')),
+            );
+          }
+          return ArticleDetailScreen(article: extra);
+        },
       ),
     ],
   );
@@ -63,6 +85,7 @@ class BottomNavShell extends StatelessWidget {
   final String location;
 
   const BottomNavShell({
+    super.key,
     required this.child,
     required this.location,
   });
@@ -75,8 +98,6 @@ class BottomNavShell extends StatelessWidget {
         return 1;
       case '/favorites':
         return 2;
-      case '/article':
-        return 3;
       default:
         return 0;
     }
@@ -90,8 +111,6 @@ class BottomNavShell extends StatelessWidget {
         return 'Search';
       case '/favorites':
         return 'Favorites';
-      case '/article':
-        return 'Article';
       default:
         return 'News';
     }
@@ -120,9 +139,6 @@ class BottomNavShell extends StatelessWidget {
             case 2:
               context.go('/favorites');
               break;
-            case 3:
-              context.go('/article');
-              break;
           }
         },
         items: const [
@@ -141,161 +157,8 @@ class BottomNavShell extends StatelessWidget {
             activeIcon: Icon(Icons.favorite),
             label: 'Favorites',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.article_outlined),
-            activeIcon: Icon(Icons.article),
-            label: 'Article',
-          ),
         ],
       ),
     );
   }
 }
-
-class LoginPage extends ConsumerWidget {
-  const LoginPage({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final isAuthenticated = ref.watch(authProvider);
-
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              isAuthenticated ? 'Logged in' : 'Login',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: 16),
-            FilledButton(
-              onPressed: () {
-                ref.read(authProvider.notifier).state = true;
-                context.go('/feed');
-              },
-              child: const Text('Continue'),
-            ),
-            const SizedBox(height: 12),
-            TextButton(
-              onPressed: () {
-                ref.read(authProvider.notifier).state = false;
-              },
-              child: const Text('Use demo login'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class FeedPage extends StatelessWidget {
-  const FeedPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Top stories',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            const SizedBox(height: 12),
-            FilledButton(
-              onPressed: () => context.go('/article'),
-              child: const Text('Open article'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class SearchPage extends StatelessWidget {
-  const SearchPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Search',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            const SizedBox(height: 12),
-            FilledButton(
-              onPressed: () => context.go('/article'),
-              child: const Text('View result'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class FavoritesPage extends StatelessWidget {
-  const FavoritesPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Favorites',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            const SizedBox(height: 12),
-            FilledButton(
-              onPressed: () => context.go('/article'),
-              child: const Text('Read saved'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class ArticlePage extends StatelessWidget {
-  const ArticlePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Article',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            const SizedBox(height: 12),
-            FilledButton(
-              onPressed: () => context.go('/feed'),
-              child: const Text('Back to feed'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
