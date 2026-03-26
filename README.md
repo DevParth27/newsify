@@ -105,3 +105,8 @@ The Dio interceptor attaches `apiKey` to every request automatically.
 - Offline favorites work without any network — Hive reads are synchronous.
 - Feed pagination loads 20 articles per page. Each category tab tracks its own page counter independently via Riverpod's `family` modifier.
 - The app targets Flutter 3+ with full null safety. No deprecated APIs used.
+
+---
+## Note
+- The Updated application is uploaded on the release section.
+- Thankyou for visiting.
