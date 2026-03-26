@@ -135,12 +135,28 @@ class ArticleDetailScreen extends ConsumerWidget {
                   if (url != null && url.isNotEmpty)
                     FilledButton.icon(
                       onPressed: () async {
-                        final uri = Uri.parse(url);
-                        if (await canLaunchUrl(uri)) {
-                          await launchUrl(
+                        final uri = Uri.tryParse(url);
+                        if (uri == null) return;
+                        try {
+                          final ok = await launchUrl(
                             uri,
                             mode: LaunchMode.externalApplication,
                           );
+                          if (!ok && context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Could not open link'),
+                              ),
+                            );
+                          }
+                        } catch (_) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Could not open link'),
+                              ),
+                            );
+                          }
                         }
                       },
                       icon: const Icon(Icons.open_in_new),

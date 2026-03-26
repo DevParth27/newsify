@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/constants/app_constants.dart';
 import '../../../core/errors/failures.dart';
 import '../../providers/auth_provider.dart';
 
@@ -42,6 +43,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     'Newsify',
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Demo: ${AppConstants.demoEmail}\nPassword: ${AppConstants.demoPassword}',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withValues(alpha: 0.65),
+                        ),
                   ),
                   const SizedBox(height: 32),
                   TextFormField(
